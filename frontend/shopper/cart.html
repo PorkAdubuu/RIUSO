@@ -158,33 +158,6 @@
     gap: 16px;
 }
 
-.cancel-note {
-    margin: 0;
-    color: var(--mushroom);
-    font-size: .82rem;
-}
-
-.cancel-btn {
-    width: auto;
-    padding: 9px 18px;
-    font-size: .82rem;
-}
-
-.cancel-btn:hover {
-    background: var(--espresso);
-    color: var(--ivory);
-}
-
-.cancel-btn:disabled {
-    border-color: var(--greige);
-    color: var(--mushroom);
-    cursor: not-allowed;
-    opacity: .65;
-}
-
-.cancel-note.locked {
-    color: #8a2a1c;
-}
 
 
 /* Reservation Summary */
@@ -335,9 +308,6 @@
         flex-direction: column;
     }
 
-    .cancel-btn {
-        width: 100%;
-    }
 
     .reservation-summary {
         padding: 24px;
@@ -376,43 +346,7 @@
         flex-direction: row;
     }
 }
-.cancel-modal {
-    border: none;
-    border-radius: 12px;
-    padding: 0;
-    width: min(90%, 420px);
-    max-width: 420px;
-}
 
-.cancel-modal::backdrop {
-    background: rgba(0, 0, 0, 0.55);
-}
-
-.cancel-modal-content {
-    padding: 30px;
-    text-align: center;
-}
-
-.cancel-modal-content h2 {
-    margin-bottom: 12px;
-}
-
-.cancel-modal-content p {
-    margin-bottom: 25px;
-    color: #666;
-}
-
-.cancel-modal-actions {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.cancel-modal-actions button {
-    padding: 12px 18px;
-    cursor: pointer;
-}
 
 </style>
 
@@ -501,11 +435,6 @@
         <h3>Reservation Policy</h3>
 
         <p>
-          <strong>Cancellation:</strong>
-          You may cancel your reservation within the first 24 hours.
-        </p>
-
-        <p>
           <strong>Payment:</strong>
           All reserved items must be paid for and collected in-store
           within 48 hours of reservation.
@@ -573,204 +502,117 @@
       <span>Less new, more you.</span>
     </div>
   </footer>
-       <dialog id="cancel-modal" class="cancel-modal">
-    <div class="cancel-modal-content">
-        <h2>Cancel Reservation?</h2>
-        <p>Are you sure you want to cancel this reservation?</p>
+  <script> 
+const STORAGE_KEY = "riusoReservations";
 
-        <div class="cancel-modal-actions">
-            <button type="button" id="keep-reservation" class="btn">
-                Keep Reservation
-            </button>
+const reservationList = document.getElementById("reservation-list");
+const reservationCount = document.getElementById("reservation-count");
+const summaryCount = document.getElementById("summary-count");
+const cartTotal = document.getElementById("cart-total");
 
-            <button type="button" id="confirm-cancel" class="btn cancel-btn">
-                Yes, Cancel
-            </button>
-        </div>
-    </div>
-</dialog>
-    <script>
-                
-        const STORAGE_KEY = "riusoReservations";
+function getReservations() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+}
 
-        const reservationList = document.getElementById("reservation-list");
-        const reservationCount = document.getElementById("reservation-count");
-        const summaryCount = document.getElementById("summary-count");
-        const cartTotal = document.getElementById("cart-total");
+function saveReservations(reservations) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
+}
 
-      
-        function getReservations() {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+function peso(amount) {
+    return "₱" + Number(amount).toFixed(2);
+}
+
+function formatDate(timestamp) {
+    return new Date(timestamp).toLocaleString("en-PH", {
+        dateStyle: "long",
+        timeStyle: "short"
+    });
+}
+
+function renderReservations() {
+    let reservations = getReservations();
+    const now = Date.now();
+
+    // Automatically expire reservations after 48 hours.
+    reservations.forEach(item => {
+        if (
+            item.status === "reserved" &&
+            now >= item.reservedAt + (48 * 60 * 60 * 1000)
+        ) {
+            item.status = "expired";
         }
-
-        function saveReservations(reservations) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
-        }
-
-        function peso(amount) {
-            return "₱" + amount.toFixed(2);
-        }
-
-        function formatDate(timestamp) {
-            return new Date(timestamp).toLocaleString("en-PH", {
-                dateStyle: "long",
-                timeStyle: "short"
-            });
-        }
-
-        function renderReservations() {
-            let reservations = getReservations();
-            const now = Date.now();
-
-            // Automatically expire reservations after 48 hours.
-            reservations.forEach(item => {
-                if (
-                    item.status === "reserved" &&
-                    now >= item.reservedAt + (48 * 60 * 60 * 1000)
-                ) {
-                    item.status = "expired";
-                }
-            });
-
-            saveReservations(reservations);
-
-            const active = reservations.filter(item => item.status === "reserved");
-
-            reservationList.innerHTML = "";
-            const emptyState = document.getElementById("empty-reservations");
-            const summary = document.querySelector(".reservation-summary");
-
-            emptyState.hidden = active.length > 0;
-            summary.hidden = active.length === 0;
-            let total = 0;
-
-            active.forEach(item => {
-                const cancellationDeadline = item.reservedAt + (24 * 60 * 60 * 1000);
-                const paymentDeadline = item.reservedAt + (48 * 60 * 60 * 1000);
-
-                const canCancel = now < cancellationDeadline;
-
-                total += item.price;
-
-                reservationList.innerHTML += `
-                    <article class="reservation-item">
-
-                        <div class="reservation-photo">
-                            <img src="${item.image}" alt="${item.name}">
-                        </div>
-
-                        <div class="reservation-details">
-
-                            <div class="item-heading">
-                                <div>
-                                    <p class="item-id">ITEM #${item.id}</p>
-                                    <h3>${item.name}</h3>
-                                    <p class="item-price">${peso(item.price)}</p>
-                                </div>
-
-                                <span class="status reserved">Reserved</span>
-                            </div>
-
-                            <div class="reservation-info">
-
-                                <p>
-                                    <span>Reservation date</span>
-                                    ${formatDate(item.reservedAt)}
-                                </p>
-
-                                <p>
-                                    <span>Cancellation deadline</span>
-                                    ${formatDate(cancellationDeadline)}
-                                </p>
-
-                                <p>
-                                    <span>Payment deadline</span>
-                                    ${formatDate(paymentDeadline)}
-                                </p>
-
-                            </div>
-
-                            <div class="item-actions">
-
-                                <p class="cancel-note ${canCancel ? "" : "locked"}">
-                                    ${canCancel
-                                        ? "Cancellation is still available."
-                                        : "The cancellation period has ended."}
-                                </p>
-
-                                <button
-                                    class="btn cancel-btn"
-                                    type="button"
-                                    data-id="${item.id}"
-                                    ${canCancel ? "" : "disabled"}>
-                                    Cancel Reservation
-                                </button>
-
-                            </div>
-
-                        </div>
-                    </article>
-                `;
-            });
-
-            reservationCount.textContent = `${active.length} items reserved`;
-            summaryCount.textContent = `${active.length} reserved items`;
-            cartTotal.textContent = peso(total);
-        }
-
-     const cancelModal = document.getElementById("cancel-modal");
-const keepReservation = document.getElementById("keep-reservation");
-const confirmCancel = document.getElementById("confirm-cancel");
-
-let selectedItemId = null;
-
-// Open custom confirmation modal.
-reservationList.addEventListener("click", function(event) {
-    const button = event.target.closest(".cancel-btn");
-
-    if (!button || button.disabled) return;
-
-    selectedItemId = button.dataset.id;
-    cancelModal.showModal();
-});
-
-// Keep reservation.
-keepReservation.addEventListener("click", function() {
-    selectedItemId = null;
-    cancelModal.close();
-});
-
-// Confirm cancellation.
-confirmCancel.addEventListener("click", function() {
-    if (!selectedItemId) return;
-
-    const reservations = getReservations();
-
-    const item = reservations.find(
-        reservation => reservation.id === selectedItemId
-    );
-
-    if (!item || item.status !== "reserved") {
-        cancelModal.close();
-        return;
-    }
-
-    if (Date.now() >= item.reservedAt + (24 * 60 * 60 * 1000)) {
-        cancelModal.close();
-        selectedItemId = null;
-        renderReservations();
-        return;
-    }
-
-    item.status = "cancelled";
+    });
 
     saveReservations(reservations);
 
-    selectedItemId = null;
-    cancelModal.close();
+    const active = reservations.filter(
+        item => item.status === "reserved"
+    );
 
-    renderReservations();
-});
+    reservationList.innerHTML = "";
+
+    const emptyState = document.getElementById("empty-reservations");
+    const summary = document.querySelector(".reservation-summary");
+
+    emptyState.hidden = active.length > 0;
+    summary.hidden = active.length === 0;
+
+    let total = 0;
+
+    active.forEach(item => {
+        const paymentDeadline =
+            item.reservedAt + (48 * 60 * 60 * 1000);
+
+        total += Number(item.price);
+
+        reservationList.innerHTML += `
+            <article class="reservation-item">
+
+                <div class="reservation-photo">
+                    <img src="${item.image}" alt="${item.name}">
+                </div>
+
+                <div class="reservation-details">
+
+                    <div class="item-heading">
+                        <div>
+                            <p class="item-id">ITEM #${item.id}</p>
+                            <h3>${item.name}</h3>
+                            <p class="item-price">
+                                ${peso(item.price)}
+                            </p>
+                        </div>
+
+                        <span class="status reserved">Reserved</span>
+                    </div>
+
+                    <div class="reservation-info">
+
+                        <p>
+                            <span>Reservation date</span>
+                            ${formatDate(item.reservedAt)}
+                        </p>
+
+                        <p>
+                            <span>Payment deadline</span>
+                            ${formatDate(paymentDeadline)}
+                        </p>
+
+                    </div>
+
+                </div>
+            </article>
+        `;
+    });
+
+    reservationCount.textContent =
+        `${active.length} items reserved`;
+
+    summaryCount.textContent =
+        `${active.length} reserved items`;
+
+    cartTotal.textContent = peso(total);
+}
 
 renderReservations();
 
