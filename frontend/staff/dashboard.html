@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | RIUSO Staff</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="staff.css">
+</head>
+<body>
+
+<div class="staff-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">RIUSO</div>
+
+        <p class="sidebar-label">Main Menu</p>
+
+        <nav class="sidebar-nav">
+
+            <a href="dashboard.html" class="sidebar-link active">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <rect x="3" y="3" width="8" height="8"></rect>
+                    <rect x="13" y="3" width="8" height="5"></rect>
+                    <rect x="13" y="10" width="8" height="11"></rect>
+                    <rect x="3" y="13" width="8" height="8"></rect>
+                </svg>
+                Dashboard
+            </a>
+
+            <a href="items.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <path d="M4 7h16l-1.5 13h-13L4 7Z"></path>
+                    <path d="M9 7a3 3 0 0 1 6 0"></path>
+                </svg>
+                Manage Items
+            </a>
+
+            <a href="reservations.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <rect x="3" y="5" width="18" height="16" rx="1"></rect>
+                    <path d="M7 3v4M17 3v4M3 10h18"></path>
+                </svg>
+                Reservations
+            </a>
+
+            <a href="sold.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <path d="m5 12 4 4L19 6"></path>
+                    <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+                Sold Items
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="../index.html">Logout</a>
+        </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="page-label">STAFF MANAGEMENT</p>
+            </div>
+
+            <div class="staff-info">
+                <div class="staff-avatar">S</div>
+                <div>
+                    <span>Staff Member</span>
+                    <small>Administrator</small>
+                </div>
+            </div>
+        </header>
+
+        <section class="welcome">
+            <div class="page-heading">
+                <p class="eyebrow">RIUSO STAFF WORKSPACE</p>
+                <h1>Dashboard</h1>
+                <p>Manage your collection and keep the inventory updated.</p>
+            </div>
+        </section>
+
+        <!-- STATISTICS -->
+        <section class="stats-grid">
+
+            <article class="stat-card">
+                <p>Total Items</p>
+                <h3 id="total-items">0</h3>
+                <span>Items listed in the shop</span>
+            </article>
+
+            <article class="stat-card">
+                <p>Available Items</p>
+                <h3 id="available-items">0</h3>
+                <span>Ready for reservation</span>
+            </article>
+
+            <article class="stat-card">
+                <p>Reserved Items</p>
+                <h3 id="reserved-items">0</h3>
+                <span>Awaiting customer pickup</span>
+            </article>
+
+            <article class="stat-card">
+                <p>Sold Items</p>
+                <h3 id="sold-items">0</h3>
+                <span>Successfully sold</span>
+            </article>
+
+        </section>
+
+        <!-- LOWER DASHBOARD -->
+        <section class="dashboard-grid">
+
+            <div class="panel">
+
+                <div class="panel-heading">
+                    <h3>Recent Activity</h3>
+                </div>
+
+                <div class="activity-list" id="recent-activities">
+                    <p class="empty-message">Loading recent activity...</p>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+    const API_URL =
+        "https://blzljjlt63.execute-api.ap-southeast-1.amazonaws.com";
+
+    async function loadDashboard() {
+        const activityContainer =
+            document.getElementById("recent-activities");
+
+        try {
+            const response = await fetch(`${API_URL}/items`);
+
+            if (!response.ok) {
+                throw new Error("Unable to retrieve items.");
+            }
+
+            const items = await response.json();
+
+            if (!Array.isArray(items)) {
+                throw new Error("Unexpected item data received.");
+            }
+
+            const available = items.filter(item =>
+                item.status === "available"
+            );
+
+            const reserved = items.filter(item =>
+                item.status === "reserved"
+            );
+
+            const sold = items.filter(item =>
+                item.status === "sold"
+            );
+
+            document.getElementById("total-items").textContent =
+                items.length;
+
+            document.getElementById("available-items").textContent =
+                available.length;
+
+            document.getElementById("reserved-items").textContent =
+                reserved.length;
+
+            document.getElementById("sold-items").textContent =
+                sold.length;
+
+            displayRecentActivity(items);
+
+        } catch (error) {
+            console.error("Dashboard error:", error);
+
+            activityContainer.innerHTML = `
+                <p class="empty-message">
+                    Unable to load dashboard information. Please refresh the page.
+                </p>
+            `;
+        }
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function(character) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            }[character];
+        });
+    }
+
+    function displayRecentActivity(items) {
+        const container =
+            document.getElementById("recent-activities");
+
+        const activities = [];
+
+        items.forEach(item => {
+            if (item.soldAt) {
+                activities.push({
+                    name: item.name,
+                    action: "was marked as sold",
+                    timestamp: Number(item.soldAt)
+                });
+            }
+
+            if (item.reservedAt) {
+                activities.push({
+                    name: item.name,
+                    action: "was reserved",
+                    timestamp: Number(item.reservedAt)
+                });
+            }
+
+            if (item.createdAt) {
+                activities.push({
+                    name: item.name,
+                    action: "was added to the collection",
+                    timestamp: Number(item.createdAt)
+                });
+            }
+        });
+
+        activities.sort((a, b) =>
+            b.timestamp - a.timestamp
+        );
+
+        const recentActivities = activities.slice(0, 5);
+
+        if (recentActivities.length === 0) {
+            container.innerHTML = `
+                <p class="empty-message">
+                    No recent activity yet.
+                </p>
+            `;
+            return;
+        }
+
+        container.innerHTML = recentActivities.map(activity => `
+            <div class="activity-item">
+                <p>
+                    <strong>${escapeHTML(activity.name)}</strong>
+                    ${escapeHTML(activity.action)}.
+                </p>
+                <small>
+                    ${new Date(activity.timestamp * 1000).toLocaleString("en-PH")}
+                </small>
+            </div>
+        `).join("");
+    }
+
+    loadDashboard();
+</script>
+
+</body>
+</html>

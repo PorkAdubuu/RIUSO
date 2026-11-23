@@ -1,0 +1,322 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reservations | RIUSO</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="staff.css">
+</head>
+
+<body>
+
+<div class="staff-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <a href="dashboard.html" class="sidebar-brand">RIUSO</a>
+
+        <p class="sidebar-label">MAIN MENU</p>
+
+        <nav class="sidebar-nav">
+
+            <a href="dashboard.html" class="sidebar-link active">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <rect x="3" y="3" width="8" height="8"></rect>
+                    <rect x="13" y="3" width="8" height="5"></rect>
+                    <rect x="13" y="10" width="8" height="11"></rect>
+                    <rect x="3" y="13" width="8" height="8"></rect>
+                </svg>
+                Dashboard
+            </a>
+
+            <a href="items.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <path d="M4 7h16l-1.5 13h-13L4 7Z"></path>
+                    <path d="M9 7a3 3 0 0 1 6 0"></path>
+                </svg>
+                Manage Items
+            </a>
+
+            <a href="reservations.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <rect x="3" y="5" width="18" height="16" rx="1"></rect>
+                    <path d="M7 3v4M17 3v4M3 10h18"></path>
+                </svg>
+                Reservations
+            </a>
+
+            <a href="sold.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <path d="m5 12 4 4L19 6"></path>
+                    <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+                Sold Items
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="../index.html">Log Out</a>
+        </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div>
+                <p class="page-label">STAFF MANAGEMENT</p>
+            </div>
+
+            <div class="staff-info">
+                <div class="staff-avatar">S</div>
+
+                <div class="profile-info">
+                    <span>Staff Member</span>
+                    <small>Administrator</small>
+                </div>
+            </div>
+
+        </header>
+
+        <!-- PAGE HEADER -->
+        <section class="reservations-page">
+
+            <div class="reservations-header">
+                <div>
+                    <p class="eyebrow">CUSTOMER ORDERS</p>
+                    <h2>Item Reservations</h2>
+                    <p>Manage items reserved by shoppers and monitor their payment deadlines.</p>
+                </div>
+
+                <span class="reservation-total" id="reservation-total">
+                    0 Reservations
+                </span>
+            </div>
+
+            <!-- SUMMARY -->
+            <div class="reservation-summary">
+
+                <div class="summary-card">
+                    <span>Active Reservations</span>
+                    <h3 id="active-reservations">0</h3>
+                </div>
+
+                <div class="summary-card">
+                    <span>Awaiting Payment</span>
+                    <h3 id="awaiting-payment">0</h3>
+                </div>
+
+                <div class="summary-card">
+                    <span>Expired Reservations</span>
+                    <h3 id="expired-reservations">0</h3>
+                </div>
+
+            </div>
+
+            <!-- RESERVATIONS TABLE -->
+            <section class="items-panel">
+
+                <div class="items-panel-heading">
+                    <h2>Reservation List</h2>
+                    <p>View shopper details and reservation status.</p>
+                </div>
+
+                <div class="items-table-wrapper">
+
+                    <table class="items-table">
+
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Shopper</th>
+                                <th>Contact</th>
+                                <th>Reserved At</th>
+                                <th>Payment Deadline</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="reservations-table-body">
+                            <tr>
+                                <td colspan="6">
+                                    <p class="table-message">Loading reservations...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+    const API_URL =
+        "https://blzljjlt63.execute-api.ap-southeast-1.amazonaws.com";
+
+    const tableBody = document.getElementById("reservations-table-body");
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function(character) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            }[character];
+        });
+    }
+
+    function formatDate(timestamp) {
+        if (!timestamp) {
+            return "—";
+        }
+
+        return new Date(timestamp * 1000).toLocaleString("en-PH", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    async function loadReservations() {
+        try {
+            const response = await fetch(`${API_URL}/items`);
+
+            if (!response.ok) {
+                throw new Error("Unable to retrieve reservations.");
+            }
+
+            const items = await response.json();
+
+            if (!Array.isArray(items)) {
+                throw new Error("Unexpected item data received.");
+            }
+
+            const now = Math.floor(Date.now() / 1000);
+
+            // Include items currently reserved or awaiting expiry cleanup.
+            const reservations = items.filter(item =>
+                item.shopperName &&
+                item.reservedAt
+            );
+
+            const activeReservations = reservations.filter(item =>
+                item.status === "reserved" &&
+                Number(item.reservedUntil) > now
+            );
+
+            const expiredReservations = reservations.filter(item =>
+                item.status === "reserved" &&
+                Number(item.reservedUntil) <= now
+            );
+
+            const awaitingPayment = activeReservations.length;
+
+            document.getElementById("reservation-total").textContent =
+                `${reservations.length} ${reservations.length === 1 ? "Reservation" : "Reservations"}`;
+
+            document.getElementById("active-reservations").textContent =
+                activeReservations.length;
+
+            document.getElementById("awaiting-payment").textContent =
+                awaitingPayment;
+
+            document.getElementById("expired-reservations").textContent =
+                expiredReservations.length;
+
+            displayReservations(reservations, now);
+
+        } catch (error) {
+            console.error("Load reservations error:", error);
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        <p class="table-message">
+                            Unable to load reservations. Please refresh the page.
+                        </p>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    function displayReservations(reservations, now) {
+        if (reservations.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        <div class="items-empty">
+                            <p>No reservations yet.</p>
+                            <span>Reserved items will appear here.</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        // Show the newest reservations first.
+        reservations.sort((a, b) =>
+            Number(b.reservedAt) - Number(a.reservedAt)
+        );
+
+        tableBody.innerHTML = reservations.map(item => {
+            const expired =
+                item.status === "reserved" &&
+                Number(item.reservedUntil) <= now;
+
+            let status = item.status;
+
+            if (expired) {
+                status = "expired";
+            } else if (status === "reserved") {
+                status = "awaiting payment";
+            }
+
+            const statusClass = expired ? "expired" : "reserved";
+
+            return `
+                <tr>
+                    <td>${escapeHTML(item.name)}</td>
+                    <td>${escapeHTML(item.shopperName)}</td>
+                    <td>${escapeHTML(item.shopperContact)}</td>
+                    <td>${formatDate(item.reservedAt)}</td>
+                    <td>${formatDate(item.reservedUntil)}</td>
+                    <td>
+                        <span class="status ${statusClass}">
+                            ${escapeHTML(status.charAt(0).toUpperCase() + status.slice(1))}
+                        </span>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    loadReservations();
+</script>
+
+</body>
+</html>

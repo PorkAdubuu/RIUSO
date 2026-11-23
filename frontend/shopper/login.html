@@ -1,0 +1,299 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – RIUSO</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ivory: #F7F5F0;
+            --greige: #DED8CF;
+            --taupe: #B5A99A;
+            --mushroom: #75685D;
+            --espresso: #332D28;
+
+            --serif: "Cormorant Garamond", Georgia, serif;
+            --sans: "Jost", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--ivory);
+            color: var(--espresso);
+            font: 300 1rem/1.65 var(--sans);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Navigation */
+
+        .nav {
+            border-bottom: 1px solid var(--greige);
+        }
+
+        .nav-inner {
+            max-width: 1100px;
+            height: 68px;
+            margin: auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand {
+            font: 400 1.15rem var(--sans);
+            letter-spacing: .34em;
+        }
+
+        /* Login Layout */
+
+        .page {
+            min-height: calc(100vh - 69px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 55px 20px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            padding: 42px;
+            border: 1px solid var(--greige);
+            background: #FBFAF7;
+        }
+
+        .heading {
+            text-align: center;
+            margin-bottom: 34px;
+        }
+
+        .heading h1 {
+            margin: 0;
+            font: 400 3rem/1.1 var(--serif);
+        }
+
+        .heading p {
+            margin: 10px 0 0;
+            color: var(--mushroom);
+            font-size: .92rem;
+        }
+
+        .heading .subtitle {
+            font: italic 400 1.1rem var(--serif);
+            margin-top: 5px;
+        }
+
+        /* Form */
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--mushroom);
+            font-size: .85rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px 12px;
+            background: transparent;
+            border: 1px solid var(--taupe);
+            color: var(--espresso);
+            font: 400 .95rem var(--sans);
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        input:focus {
+            border-color: var(--espresso);
+        }
+
+        input::placeholder {
+            color: #A99E93;
+            font-weight: 300;
+        }
+
+        .error {
+            color: #8a2a1c;
+            font-size: .85rem;
+            margin: 8px 0;
+        }
+
+        /* Button */
+
+        .login-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 13px;
+            background: var(--espresso);
+            border: 1px solid var(--espresso);
+            color: var(--ivory);
+            font: 400 .95rem var(--sans);
+            letter-spacing: .06em;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .login-btn:hover {
+            background: var(--mushroom);
+            border-color: var(--mushroom);
+        }
+
+        /* Footer */
+
+        .divider {
+            height: 1px;
+            background: var(--greige);
+            margin: 28px 0 20px;
+        }
+
+        .register-text {
+            margin: 0;
+            text-align: center;
+            color: var(--mushroom);
+            font-size: .9rem;
+        }
+
+        .register-text a {
+            color: var(--espresso);
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        .register-text a:hover {
+            color: var(--mushroom);
+        }
+
+        .bottom-note {
+            margin-top: 25px;
+            text-align: center;
+            color: var(--mushroom);
+            font: italic 400 1rem var(--serif);
+        }
+
+        @media (max-width: 520px) {
+            .login-card {
+                padding: 28px 22px;
+            }
+
+            .heading h1 {
+                font-size: 2.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="login.html" class="brand">RIUSO</a>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <main class="page">
+
+        <section class="login-card">
+
+            <div class="heading">
+                <h1>Welcome Back</h1>
+                <p>We're glad to see you again.</p>
+                <p class="subtitle">Less new, more you.</p>
+            </div>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email address"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <p class="error" id="errorMessage" role="alert"></p>
+
+                <button type="submit" class="login-btn">
+                    Log In
+                </button>
+
+            </form>
+
+            <div class="divider"></div>
+
+            <p class="register-text">
+                Don't have an account?
+                <a href="register.html">Create an Account</a>
+            </p>
+
+            <p class="bottom-note">
+                Thank you for choosing pre-loved.
+            </p>
+
+        </section>
+
+    </main>
+
+    <script>
+        const form = document.getElementById("loginForm");
+        const errorMessage = document.getElementById("errorMessage");
+
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            errorMessage.textContent = "";
+
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+
+            if (!email || !password) {
+                errorMessage.textContent =
+                    "Please enter your email address and password.";
+                return;
+            }
+
+            errorMessage.textContent =
+                "Login is not yet connected. Please wait for account authentication setup.";
+        });
+    </script>
+
+</body>
+</html>

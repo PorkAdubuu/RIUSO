@@ -1,0 +1,379 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Items | RIUSO Staff</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="staff.css">
+
+    <style>
+        .mark-sold-btn {
+            padding: 8px 12px;
+            border: 1px solid var(--espresso);
+            background: var(--espresso);
+            color: var(--ivory);
+            font-family: var(--sans);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .mark-sold-btn:hover {
+            background: var(--mushroom);
+        }
+
+        .mark-sold-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .table-message {
+            text-align: center;
+            padding: 25px;
+            color: var(--mushroom);
+        }
+    </style>
+</head>
+<body>
+
+<div class="staff-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">RIUSO</div>
+
+        <p class="sidebar-label">Main Menu</p>
+
+        <nav class="sidebar-nav">
+
+            <a href="dashboard.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <rect x="3" y="3" width="8" height="8"></rect>
+                    <rect x="13" y="3" width="8" height="5"></rect>
+                    <rect x="13" y="10" width="8" height="11"></rect>
+                    <rect x="3" y="13" width="8" height="8"></rect>
+                </svg>
+                Dashboard
+            </a>
+
+            <a href="items.html" class="sidebar-link active">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <path d="M4 7h16l-1.5 13h-13L4 7Z"></path>
+                    <path d="M9 7a3 3 0 0 1 6 0"></path>
+                </svg>
+                Manage Items
+            </a>
+
+            <a href="reservations.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <rect x="3" y="5" width="18" height="16" rx="1"></rect>
+                    <path d="M7 3v4M17 3v4M3 10h18"></path>
+                </svg>
+                Reservations
+            </a>
+
+            <a href="sold.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
+                    <path d="m5 12 4 4L19 6"></path>
+                    <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+                Sold Items
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="../index.html">Logout</a>
+        </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="page-label">STAFF MANAGEMENT</p>
+            </div>
+
+            <div class="staff-info">
+                <div class="staff-avatar">S</div>
+                <div>
+                    <span>Staff Member</span>
+                    <small>Administrator</small>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE HEADING -->
+        <section class="items-page">
+
+            <div class="items-header">
+                <div class="page-heading">
+                    <p class="eyebrow">RIUSO INVENTORY</p>
+                    <h1>Manage Items</h1>
+                    <p>View and manage the items listed in your shop.</p>
+                </div>
+
+                <a href="add-item.html" class="add-item-btn">
+                    + Add New Item
+                </a>
+            </div>
+
+            <!-- ITEM SUMMARY -->
+            <section class="item-summary">
+
+                <div class="summary-card">
+                    <span>Total Items</span>
+                    <h3 id="total-count">0</h3>
+                </div>
+
+                <div class="summary-card">
+                    <span>Available</span>
+                    <h3 id="available-count">0</h3>
+                </div>
+
+                <div class="summary-card">
+                    <span>Reserved</span>
+                    <h3 id="reserved-count">0</h3>
+                </div>
+
+                <div class="summary-card">
+                    <span>Sold</span>
+                    <h3 id="sold-count">0</h3>
+                </div>
+
+            </section>
+
+            <!-- ITEM LIST -->
+            <section class="items-panel">
+
+                <div class="items-panel-heading">
+                    <div>
+                        <h2>All Items</h2>
+                        <p>Manage your shop inventory and item status.</p>
+                    </div>
+                </div>
+
+                <div class="items-table-wrapper">
+
+                    <table class="items-table">
+
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Photo</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="items-table-body">
+                            <tr>
+                                <td colspan="5">
+                                    <p class="table-message">Loading items...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+    const API_URL =
+        "https://blzljjlt63.execute-api.ap-southeast-1.amazonaws.com";
+
+    const tableBody = document.getElementById("items-table-body");
+
+    // Prevent item data from being interpreted as HTML.
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function(character) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            }[character];
+        });
+    }
+
+    // Display item counts.
+    function updateSummary(items) {
+        document.getElementById("total-count").textContent =
+            items.length;
+
+        document.getElementById("available-count").textContent =
+            items.filter(item => item.status === "available").length;
+
+        document.getElementById("reserved-count").textContent =
+            items.filter(item => item.status === "reserved").length;
+
+        document.getElementById("sold-count").textContent =
+            items.filter(item => item.status === "sold").length;
+    }
+
+    // Load items from the API.
+    async function loadItems() {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    <p class="table-message">Loading items...</p>
+                </td>
+            </tr>
+        `;
+
+        try {
+            const response = await fetch(`${API_URL}/items`);
+
+            if (!response.ok) {
+                throw new Error("Unable to retrieve items.");
+            }
+
+            const items = await response.json();
+
+            if (!Array.isArray(items)) {
+                throw new Error("Unexpected item data received.");
+            }
+
+            updateSummary(items);
+            displayItems(items);
+
+        } catch (error) {
+            console.error("Load items error:", error);
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        <p class="table-message">
+                            Unable to load items. Please refresh the page.
+                        </p>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    // Display the retrieved items.
+    function displayItems(items) {
+        if (items.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        <div class="items-empty">
+                            <p>No items added yet.</p>
+                            <span>New items will appear here once they are added to the shop.</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tableBody.innerHTML = items.map(item => {
+            const status = String(item.status || "").toLowerCase();
+
+            let action = "—";
+
+            if (status === "reserved") {
+                action = `
+                    <button
+                        type="button"
+                        class="mark-sold-btn"
+                        onclick="markAsSold('${escapeHTML(item.itemId)}', this)"
+                    >
+                        Mark as Sold
+                    </button>
+                `;
+            }
+
+            return `
+                <tr>
+                    <td>${escapeHTML(item.name)}</td>
+
+                    <td>
+                        ₱${Number(item.price).toLocaleString("en-PH", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}
+                    </td>
+
+                    <td>${escapeHTML(item.photo)}</td>
+
+                    <td>
+                        <span class="status ${escapeHTML(status)}">
+                            ${escapeHTML(status.charAt(0).toUpperCase() + status.slice(1))}
+                        </span>
+                    </td>
+
+                    <td>${action}</td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    // Mark a reserved item as sold.
+    async function markAsSold(itemId, button) {
+        const confirmed = confirm(
+            "Are you sure you want to mark this item as sold?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Updating...";
+
+        try {
+            const response = await fetch(
+                `${API_URL}/items/${encodeURIComponent(itemId)}/sold`,
+                {
+                    method: "PUT"
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    result.message || "Unable to mark item as sold."
+                );
+            }
+
+            alert("Item successfully marked as sold.");
+
+            await loadItems();
+
+        } catch (error) {
+            console.error("Mark as sold error:", error);
+
+            alert(error.message || "Something went wrong.");
+
+            button.disabled = false;
+            button.textContent = "Mark as Sold";
+        }
+    }
+
+    // Load inventory when the page opens.
+    loadItems();
+</script>
+
+</body>
+</html>

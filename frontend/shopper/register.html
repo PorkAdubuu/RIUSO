@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register – RIUSO</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ivory: #F7F5F0;
+            --greige: #DED8CF;
+            --taupe: #B5A99A;
+            --mushroom: #75685D;
+            --espresso: #332D28;
+
+            --serif: "Cormorant Garamond", Georgia, serif;
+            --sans: "Jost", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--ivory);
+            color: var(--espresso);
+            font: 300 1rem/1.65 var(--sans);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Navigation */
+
+        .nav {
+            border-bottom: 1px solid var(--greige);
+        }
+
+        .nav-inner {
+            max-width: 1100px;
+            height: 68px;
+            margin: auto;
+            padding: 0 24px;
+            display: flex;
+             align-items: center;
+            justify-content: center;
+        }
+
+        .brand {
+            font: 400 1.15rem var(--sans);
+            letter-spacing: .34em;
+        }
+
+        .back-link {
+            font-size: .9rem;
+            color: var(--mushroom);
+        }
+
+        .back-link:hover {
+            color: var(--espresso);
+        }
+
+        /* Registration Layout */
+
+        .page {
+            min-height: calc(100vh - 69px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 55px 20px;
+        }
+
+        .register-card {
+            width: 100%;
+            max-width: 470px;
+            padding: 42px;
+            border: 1px solid var(--greige);
+            background: #FBFAF7;
+        }
+
+        .heading {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .heading h1 {
+            margin: 0;
+            font: 400 3rem/1.1 var(--serif);
+        }
+
+        .heading p {
+            margin: 10px 0 0;
+            color: var(--mushroom);
+            font-size: .92rem;
+        }
+
+        .heading .subtitle {
+            font: italic 400 1.1rem var(--serif);
+            margin-top: 5px;
+        }
+
+        /* Form */
+
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--mushroom);
+            font-size: .85rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px 12px;
+            background: transparent;
+            border: 1px solid var(--taupe);
+            color: var(--espresso);
+            font: 400 .95rem var(--sans);
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        input:focus {
+            border-color: var(--espresso);
+        }
+
+        input::placeholder {
+            color: #A99E93;
+            font-weight: 300;
+        }
+
+        .password-note {
+            margin-top: 5px;
+            color: var(--mushroom);
+            font-size: .78rem;
+        }
+
+        .error {
+            color: #8a2a1c;
+            font-size: .85rem;
+            margin: 8px 0;
+        }
+
+        /* Button */
+
+        .register-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 13px;
+            background: var(--espresso);
+            border: 1px solid var(--espresso);
+            color: var(--ivory);
+            font: 400 .95rem var(--sans);
+            letter-spacing: .06em;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .register-btn:hover {
+            background: var(--mushroom);
+            border-color: var(--mushroom);
+        }
+
+        .register-btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        /* Footer */
+
+        .login-text {
+            margin: 24px 0 0;
+            text-align: center;
+            color: var(--mushroom);
+            font-size: .9rem;
+        }
+
+        .login-text a {
+            color: var(--espresso);
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        .login-text a:hover {
+            color: var(--mushroom);
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--greige);
+            margin: 25px 0 18px;
+        }
+
+        .bottom-note {
+            text-align: center;
+            color: var(--mushroom);
+            font: italic 400 1rem var(--serif);
+        }
+
+        .success-message {
+            display: none;
+            padding: 12px;
+            margin-top: 15px;
+            background: var(--greige);
+            color: var(--espresso);
+            text-align: center;
+            font-size: .88rem;
+        }
+
+        @media (max-width: 520px) {
+            .register-card {
+                padding: 28px 22px;
+            }
+
+            .heading h1 {
+                font-size: 2.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="brand">RIUSO</a>
+            
+        </div>
+    </nav>
+
+    <!-- Registration Form -->
+    <main class="page">
+
+        <section class="register-card">
+
+            <div class="heading">
+                <h1>Create an Account</h1>
+                <p>Welcome to RIUSO.</p>
+                <p class="subtitle">Less new, more you.</p>
+            </div>
+
+            <form id="registerForm">
+
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input
+                        type="text"
+                        id="fullname"
+                        name="fullname"
+                        placeholder="Enter your full name"
+                        autocomplete="name"
+                        maxlength="100"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email address"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="contact">Contact Number</label>
+                    <input
+                        type="tel"
+                        id="contact"
+                        name="contact"
+                        placeholder="09XX XXX XXXX"
+                        autocomplete="tel"
+                        maxlength="20"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Create a password"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required
+                    >
+                    <p class="password-note">
+                        Must contain at least 8 characters.
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        placeholder="Re-enter your password"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required
+                    >
+                </div>
+
+                <p class="error" id="errorMessage" role="alert"></p>
+
+                <button type="submit" class="register-btn">
+                    Create Account
+                </button>
+
+                <div class="success-message" id="successMessage">
+                    Your form is valid! Account registration is not yet connected.
+                </div>
+
+            </form>
+
+            <div class="divider"></div>
+
+            <p class="login-text">
+                Already have an account?
+                <a href="login.html">Log in</a>
+            </p>
+
+            <p class="bottom-note">
+                Thank you for choosing pre-loved.
+            </p>
+
+        </section>
+
+    </main>
+
+    <script>
+        const form = document.getElementById("registerForm");
+        const errorMessage = document.getElementById("errorMessage");
+        const successMessage = document.getElementById("successMessage");
+
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            errorMessage.textContent = "";
+            successMessage.style.display = "none";
+
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+
+            if (password !== confirmPassword) {
+                errorMessage.textContent = "Passwords do not match.";
+                return;
+            }
+
+            successMessage.style.display = "block";
+        });
+    </script>
+
+</body>
+</html>

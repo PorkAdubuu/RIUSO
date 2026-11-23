@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RIUSO – Less new, more you.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="RIUSO, back to top">RIUSO</a>
+      <div class="links">
+          <a href="#shop">Shop</a>
+          <a href="#how">How it works</a>
+          <a href="#visit">Visit</a>
+
+          <div class="nav-icons">
+              <!-- Cart Icon -->
+            <a href="cart.html" class="nav-icon" aria-label="My Cart">
+              <svg viewBox="0 0 24 24" width="21" height="21"
+                  fill="none" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L22 8H6"/>
+                <circle cx="10" cy="21" r="1"/>
+                <circle cx="18" cy="21" r="1"/>
+              </svg>
+            </a>
+
+            <!-- Profile Icon -->
+            <a href="login.html" class="nav-icon" aria-label="My Profile">
+              <svg viewBox="0 0 24 24" width="21" height="21"
+                  fill="none" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M5 21v-2a7 7 0 0 1 14 0v2"/>
+              </svg>
+            </a>
+          </div>
+      </div>
+  </div>
+</nav>
+
+<header class="wrap intro" id="top">
+  <div>
+    <h1>Less new,<br>more you.</h1>
+    <p class="lead">Pre-loved pieces, posted every Friday at 7:00 PM. Reserve online and pay at the shop.</p>
+    <a class="btn solid cta" href="#shop">Browse this week</a>
+    <div class="drop" role="timer" aria-label="Time until the next drop">
+      <p class="dl" id="dl">Next drop, Friday at 7:00 PM</p>
+      <div class="clock" id="clock">
+        <div><b id="cd">0</b><span>days</span></div>
+        <div><b id="ch">00</b><span>hours</span></div>
+        <div><b id="cm">00</b><span>minutes</span></div>
+        <div><b id="cs">00</b><span>seconds</span></div>
+      </div>
+    </div>
+  </div>
+ <figure class="frame" style="margin-block:0">
+  <div class="arch" id="arch">
+    <img src="photos/hero.jpg" alt="Pre-loved clothing collection">
+  </div>
+  <figcaption>Fresh on the rack</figcaption>
+</figure>
+</header>
+
+<main>
+  <section class="wrap" id="shop" aria-labelledby="shop-h">
+    <div class="head">
+      <h2 id="shop-h">This week</h2>
+      <p id="count" aria-live="polite"></p>
+    </div>
+    <div id="view" aria-busy="true"></div>
+  </section>
+
+  <section class="band" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="head" style="border-color:var(--taupe)"><h2 id="how-h">How it works</h2></div>
+      <ol class="steps">
+        <li><span class="n">1</span><h3>Reserve</h3><p>Choose a piece and leave your name and number. It’s held for you right away and shown as taken to everyone else.</p></li>
+        <li><span class="n">2</span><h3>Pay at the shop</h3><p>Come in within 2 days to pay. No online payment.</p></li>
+        <li><span class="n">3</span><h3>Take it home</h3><p>If you don’t come in time, the piece goes back on the rack for someone else.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="wrap visit" id="visit" aria-labelledby="visit-h">
+    <div class="head"><h2 id="visit-h">Visit</h2></div>
+    <div class="cols">
+      <div><h3>Where</h3><p id="addr"></p></div>
+      <div><h3>Hours</h3><p id="hours"></p></div>
+    </div>
+  </section>
+</main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="wrap">
+      <span>© 2026 RIUSO</span>
+      <span>Less new, more you.</span>
+    </div>
+  </footer>
+
+<dialog id="dlg" aria-labelledby="dtitle">
+  <form class="dlg" id="form" novalidate>
+    <h3 id="dtitle">Reserve this piece</h3>
+    <p id="dsub"></p>
+    <label for="who">Your name</label>
+    <input id="who" autocomplete="name" required maxlength="60">
+    <label for="tel">Contact number</label>
+    <input id="tel" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20" placeholder="09XX XXX XXXX">
+    <p class="err" id="err" role="alert"></p>
+    <div class="row">
+      <button class="btn" type="button" id="cancel">Cancel</button>
+      <button class="btn solid" type="submit" id="go">Reserve</button>
+    </div>
+  </form>
+  <div class="dlg" id="done" hidden>
+    <h3>Reserved</h3>
+    <p id="donemsg"></p>
+    <button class="btn solid" type="button" id="close">Done</button>
+  </div>
+</dialog>
+<script src="script.js"></script>
+</body>
+</html>
