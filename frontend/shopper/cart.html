@@ -467,30 +467,30 @@
     </section>
 
 
-    <!-- Expired Reservations -->
-    <section class="reservation-history">
-      <div class="head">
+<!-- Expired Reservations -->
+<section class="reservation-history">
+    <div class="head">
         <h2>Expired Reservations</h2>
-        <p>Previously reserved items</p>
-      </div>
+        <p id="expired-count">Previously reserved items</p>
+    </div>
 
-      <p class="history-empty">
-        No expired reservations.
-      </p>
-    </section>
+    <div id="expired-list">
+        <p class="history-empty">No expired reservations.</p>
+    </div>
+</section>
 
-
-    <!-- Completed Reservations -->
-    <section class="reservation-history">
-      <div class="head">
+<!-- Completed Reservations -->
+<section class="reservation-history">
+    <div class="head">
         <h2>Completed Reservations</h2>
-        <p>Your purchased pieces</p>
-      </div>
+        <p id="completed-count">Your purchased pieces</p>
+    </div>
 
-      <p class="history-empty">
-        No completed reservations yet.
-      </p>
-    </section>
+    <div id="completed-list">
+        <p class="history-empty">No completed reservations yet.</p>
+    </div>
+</section>
+
 
   </main>
 
@@ -503,118 +503,311 @@
     </div>
   </footer>
   <script> 
-const STORAGE_KEY = "riusoReservations";
 
-const reservationList = document.getElementById("reservation-list");
-const reservationCount = document.getElementById("reservation-count");
-const summaryCount = document.getElementById("summary-count");
-const cartTotal = document.getElementById("cart-total");
+        const API_URL = "https://blzljjlt63.execute-api.ap-southeast-1.amazonaws.com";
+        const STORAGE_KEY = "riusoReservations";
+        const RESERVATION_PERIOD = 48 * 60 * 60 * 1000;
 
-function getReservations() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-}
+        const reservationList = document.getElementById("reservation-list");
+        const reservationCount = document.getElementById("reservation-count");
+        const summaryCount = document.getElementById("summary-count");
+        const cartTotal = document.getElementById("cart-total");
 
-function saveReservations(reservations) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
-}
+        const expiredList = document.getElementById("expired-list");
+        const completedList = document.getElementById("completed-list");
 
-function peso(amount) {
-    return "₱" + Number(amount).toFixed(2);
-}
+        const peso = amount =>
+            "₱" + Number(amount).toFixed(2);
 
-function formatDate(timestamp) {
-    return new Date(timestamp).toLocaleString("en-PH", {
-        dateStyle: "long",
-        timeStyle: "short"
-    });
-}
-
-function renderReservations() {
-    let reservations = getReservations();
-    const now = Date.now();
-
-    // Automatically expire reservations after 48 hours.
-    reservations.forEach(item => {
-        if (
-            item.status === "reserved" &&
-            now >= item.reservedAt + (48 * 60 * 60 * 1000)
-        ) {
-            item.status = "expired";
+        function getReservations() {
+            try {
+                return JSON.parse(
+                    localStorage.getItem(STORAGE_KEY) || "[]"
+                );
+            } catch {
+                return [];
+            }
         }
-    });
 
-    saveReservations(reservations);
+        function saveReservations(reservations) {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(reservations)
+            );
+        }
 
-    const active = reservations.filter(
-        item => item.status === "reserved"
-    );
+        function formatDate(timestamp) {
+            if (!timestamp) return "Not available";
 
-    reservationList.innerHTML = "";
+            return new Date(timestamp).toLocaleString("en-PH", {
+                dateStyle: "long",
+                timeStyle: "short"
+            });
+        }
 
-    const emptyState = document.getElementById("empty-reservations");
-    const summary = document.querySelector(".reservation-summary");
+        function createReservationCard(item, status) {
+            const article = document.createElement("article");
+            article.className = "reservation-item";
 
-    emptyState.hidden = active.length > 0;
-    summary.hidden = active.length === 0;
+            const photo = document.createElement("div");
+            photo.className = "reservation-photo";
 
-    let total = 0;
+            const img = document.createElement("img");
+            img.src = item.image || "";
+            img.alt = item.name || "Reserved item";
+            img.onerror = () => {
+                img.style.display = "none";
+            };
 
-    active.forEach(item => {
-        const paymentDeadline =
-            item.reservedAt + (48 * 60 * 60 * 1000);
+            photo.appendChild(img);
 
-        total += Number(item.price);
+            const details = document.createElement("div");
+            details.className = "reservation-details";
 
-        reservationList.innerHTML += `
-            <article class="reservation-item">
+            const heading = document.createElement("div");
+            heading.className = "item-heading";
 
-                <div class="reservation-photo">
-                    <img src="${item.image}" alt="${item.name}">
-                </div>
+            const information = document.createElement("div");
 
-                <div class="reservation-details">
+            const id = document.createElement("p");
+            id.className = "item-id";
+            id.textContent = "ITEM #" + item.id;
 
-                    <div class="item-heading">
-                        <div>
-                            <p class="item-id">ITEM #${item.id}</p>
-                            <h3>${item.name}</h3>
-                            <p class="item-price">
-                                ${peso(item.price)}
-                            </p>
-                        </div>
+            const name = document.createElement("h3");
+            name.textContent = item.name;
 
-                        <span class="status reserved">Reserved</span>
-                    </div>
+            const price = document.createElement("p");
+            price.className = "item-price";
+            price.textContent = peso(item.price);
 
-                    <div class="reservation-info">
+            information.append(id, name, price);
 
-                        <p>
-                            <span>Reservation date</span>
-                            ${formatDate(item.reservedAt)}
-                        </p>
+            const badge = document.createElement("span");
+            badge.className = "status " + status;
+            badge.textContent =
+                status.charAt(0).toUpperCase() + status.slice(1);
 
-                        <p>
-                            <span>Payment deadline</span>
-                            ${formatDate(paymentDeadline)}
-                        </p>
+            heading.append(information, badge);
 
-                    </div>
+            const dates = document.createElement("div");
+            dates.className = "reservation-info";
 
-                </div>
-            </article>
-        `;
-    });
+            const dateInfo = document.createElement("p");
+            const dateLabel = document.createElement("span");
+            dateLabel.textContent = "Reservation date";
 
-    reservationCount.textContent =
-        `${active.length} items reserved`;
+            dateInfo.append(
+                dateLabel,
+                document.createTextNode(formatDate(item.reservedAt))
+            );
 
-    summaryCount.textContent =
-        `${active.length} reserved items`;
+            dates.appendChild(dateInfo);
 
-    cartTotal.textContent = peso(total);
-}
+            if (status === "reserved") {
+                const deadlineInfo = document.createElement("p");
+                const deadlineLabel = document.createElement("span");
 
-renderReservations();
+                deadlineLabel.textContent = "Payment deadline";
+
+                const deadline = item.reservedAt + RESERVATION_PERIOD;
+
+                deadlineInfo.append(
+                    deadlineLabel,
+                    document.createTextNode(formatDate(deadline))
+                );
+
+                dates.appendChild(deadlineInfo);
+            }
+
+            if (status === "sold" && item.soldAt) {
+                const soldInfo = document.createElement("p");
+                const soldLabel = document.createElement("span");
+
+                soldLabel.textContent = "Purchase completed";
+
+                soldInfo.append(
+                    soldLabel,
+                    document.createTextNode(
+                        formatDate(item.soldAt * 1000)
+                    )
+                );
+
+                dates.appendChild(soldInfo);
+            }
+
+            details.append(heading, dates);
+            article.append(photo, details);
+
+            return article;
+        }
+
+        function renderSection(container, items, status, emptyMessage) {
+            container.innerHTML = "";
+
+            if (items.length === 0) {
+                const empty = document.createElement("p");
+                empty.className = "history-empty";
+                empty.textContent = emptyMessage;
+                container.appendChild(empty);
+                return;
+            }
+
+            items.forEach(item => {
+                container.appendChild(
+                    createReservationCard(item, status)
+                );
+            });
+        }
+
+        async function renderReservations() {
+            const emptyState = document.getElementById("empty-reservations");
+            const summary = document.querySelector(".reservation-summary");
+
+            try {
+                let reservations = getReservations();
+
+                // Retrieve current item statuses from the existing API.
+                const response = await fetch(API_URL + "/items");
+
+                if (!response.ok) {
+                    throw new Error("Unable to retrieve items.");
+                }
+
+                const items = await response.json();
+
+                const itemMap = new Map(
+                    items.map(item => [item.itemId, item])
+                );
+
+                const now = Date.now();
+
+                const active = [];
+                const expired = [];
+                const completed = [];
+                const validReservations = [];
+
+                reservations.forEach(reservation => {
+                    const currentItem = itemMap.get(reservation.id);
+
+                    // Do not display reservations whose items no longer exist.
+                    if (!currentItem) return;
+
+                    // Use the current backend item information.
+                    const item = {
+                        ...reservation,
+                        name: currentItem.name || reservation.name,
+                        price: currentItem.price ?? reservation.price,
+                        soldAt: currentItem.soldAt
+                    };
+
+                    // Sold status takes priority.
+                    if (currentItem.status === "sold") {
+                        completed.push(item);
+                        validReservations.push({
+                            ...reservation,
+                            status: "sold"
+                        });
+                        return;
+                    }
+
+                    const deadline =
+                        Number(reservation.reservedAt) + RESERVATION_PERIOD;
+
+                    // The backend no longer considers this item reserved.
+                    if (
+                        currentItem.status !== "reserved" ||
+                        now >= deadline
+                    ) {
+                        expired.push(item);
+                        validReservations.push({
+                            ...reservation,
+                            status: "expired"
+                        });
+                        return;
+                    }
+
+                    active.push(item);
+
+                    validReservations.push({
+                        ...reservation,
+                        status: "reserved"
+                    });
+                });
+
+                // Keep local records synchronized with the current item status.
+                saveReservations(validReservations);
+
+                reservationList.innerHTML = "";
+
+                let total = 0;
+
+                active.forEach(item => {
+                    total += Number(item.price);
+
+                    reservationList.appendChild(
+                        createReservationCard(item, "reserved")
+                    );
+                });
+
+                renderSection(
+                    expiredList,
+                    expired,
+                    "expired",
+                    "No expired reservations."
+                );
+
+                renderSection(
+                    completedList,
+                    completed,
+                    "sold",
+                    "No completed reservations yet."
+                );
+
+                reservationCount.textContent =
+                    `${active.length} items reserved`;
+
+                summaryCount.textContent =
+                    `${active.length} reserved items`;
+
+                cartTotal.textContent = peso(total);
+
+                document.getElementById("expired-count").textContent =
+                    `${expired.length} expired items`;
+
+                document.getElementById("completed-count").textContent =
+                    `${completed.length} purchased pieces`;
+
+                // Show the empty state only if there are no reservations at all.
+                emptyState.hidden =
+                    active.length + expired.length + completed.length > 0;
+
+                summary.hidden = active.length === 0;
+
+            } catch (error) {
+                console.error("Reservation loading error:", error);
+
+                reservationList.innerHTML = "";
+
+                const message = document.createElement("p");
+                message.className = "history-empty";
+                message.textContent =
+                    "Unable to load reservations. Please refresh the page.";
+
+                reservationList.appendChild(message);
+
+                expiredList.innerHTML = "";
+                completedList.innerHTML = "";
+
+                expiredList.appendChild(message.cloneNode(true));
+                completedList.appendChild(message.cloneNode(true));
+
+                reservationCount.textContent = "Unable to load";
+                summary.hidden = true;
+                emptyState.hidden = true;
+            }
+        }
+
+        renderReservations();
 
     </script>
 </body>
